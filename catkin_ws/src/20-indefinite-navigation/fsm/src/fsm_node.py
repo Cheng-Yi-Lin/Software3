@@ -58,7 +58,7 @@ class FSMNode(object):
         # importlib might help. But it might get too complicated since different type 
             self.sub_list.append(rospy.Subscriber("%s"%(topic_name), BoolStamped, self.cbEvent, callback_args=event_name))
 
-        rospy.loginfo("[%s] Initialized." %self.node_name)
+        ###rospy.loginfo("[%s] Initialized." %self.node_name)
         # Publish initial state
         self.publish()
 
@@ -145,7 +145,7 @@ class FSMNode(object):
 
     def publishState(self):
         self.pub_state.publish(self.state_msg)
-        rospy.loginfo("[%s] FSMState: %s" %(self.node_name, self.state_msg.state))
+        ###rospy.loginfo("[%s] FSMState: %s" %(self.node_name, self.state_msg.state))
 
     def publishBools(self):
         active_nodes = self._getActiveNodesOfState(self.state_msg.state)
@@ -154,7 +154,7 @@ class FSMNode(object):
             msg.header.stamp = self.state_msg.header.stamp
             msg.data = bool(node_name in active_nodes)
             node_state = "ON" if msg.data else "OFF"
-            rospy.loginfo("[%s] Node %s is %s in %s" %(self.node_name, node_name, node_state, self.state_msg.state))
+            ###rospy.loginfo("[%s] Node %s is %s in %s" %(self.node_name, node_name, node_state, self.state_msg.state))
             if self.active_nodes is not None:
                 if (node_name in active_nodes) == (node_name in self.active_nodes):
                     continue
@@ -169,7 +169,7 @@ class FSMNode(object):
     def cbEvent(self,msg,event_name):
         if (msg.data == self.event_trigger_dict[event_name]):
             # Update timestamp
-            rospy.loginfo("[%s] Event: %s" %(self.node_name,event_name))
+            ###rospy.loginfo("[%s] Event: %s" %(self.node_name,event_name))
             self.state_msg.header.stamp = msg.header.stamp
             next_state = self._getNextState(self.state_msg.state,event_name)
             if next_state is not None:

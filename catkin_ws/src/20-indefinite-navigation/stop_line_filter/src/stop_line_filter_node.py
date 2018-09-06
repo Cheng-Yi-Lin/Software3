@@ -2,7 +2,7 @@
 import rospy
 import numpy as np
 from duckietown_msgs.msg import SegmentList, Segment, BoolStamped, StopLineReading, LanePose, FSMState
-from std_msgs.msg import Float32
+from std_msgs.msg import Float32 , String
 from geometry_msgs.msg import Point
 import time
 import math
@@ -32,13 +32,18 @@ class StopLineFilterNode(object):
         self.sub_switch = rospy.Subscriber("~switch",BoolStamped, self.cbSwitch)
 
         self.params_update = rospy.Timer(rospy.Duration.from_sec(1.0), self.updateParams)
-
+        self.sub_car_warehouse=rospy.Subscriber("porter_car_servo/car_warehouse_following",String, self.warehouse_info)
+        self.warehouse_action=""
+        self.pub_at_charger_stop_line = rospy.Publisher("~at_charger_stop_line",String, queue_size=1)
+        self.pub_at_shelf_stop_line = rospy.Publisher("~at_shelf_stop_line",String, queue_size=1)
+	self.pub_at_factory_stop_line = rospy.Publisher("~at_factory_stop_line",String, queue_size=1)
     def setupParam(self,param_name,default_value):
         value = rospy.get_param(param_name,default_value)
         rospy.set_param(param_name,value) #Write to parameter server for transparancy
         rospy.loginfo("[%s] %s = %s " %(self.node_name,param_name,value))
         return value
-
+    def warehouse_info(self,msg):
+        self.warehouse_action=msg.data
     def updateParams(self,event):
         self.stop_distance = rospy.get_param("~stop_distance")
         self.min_segs      = rospy.get_param("~min_segs")
@@ -70,7 +75,8 @@ class StopLineFilterNode(object):
     def processSegments(self, segment_list_msg):
         if not self.active or self.sleep:
             return
-
+        if self.warehouse_action=="in_warehouse_lane_following" or self.warehouse_action=="in_charger_station_lane_following":
+            return
         good_seg_count=0
         stop_line_x_accumulator=0.0
         stop_line_y_accumulator=0.0
@@ -108,7 +114,20 @@ class StopLineFilterNode(object):
             msg.header.stamp = stop_line_reading_msg.header.stamp
             msg.data = True
             self.pub_at_stop_line.publish(msg)
-
+            if self.warehouse_action=="porter_stop_line":
+                self.warehouse_action=""
+                at_factory_stop_line_msg=String()
+                at_factory_stop_line_msg.data="at_factory_stop_line"
+                self.pub_at_factory_stop_line.publish(at_factory_stop_line_msg)
+            if self.warehouse_action=="in_warehouse_stop_line":
+                self.warehouse_action="in_warehouse_lane_following"
+                at_shelf_stop_line_msg=String()
+                at_shelf_stop_line_msg.data="at_shelf_stop_line"
+                self.pub_at_shelf_stop_line.publish(at_shelf_stop_line_msg)
+            if self.warehouse_action=="in_charger_stop_line":
+                at_charger_stop_line_msg=String()
+                at_charger_stop_line_msg.data="at_charger_stop_line"
+                self.pub_at_charger_stop_line.publish(at_charger_stop_line_msg)
     def to_lane_frame(self, point):
         p_homo = np.array([point.x,point.y,1])
         phi = self.lane_pose.phi

@@ -58,6 +58,10 @@ events: #Maps from subscribing topic to signal ids
     topic: "vehicle_avoidance_control_node/vehicle_detected"
     msg_type: "BoolStamped"
     trigger: False
+  at_stop_back:
+    topic: "tsp_salesman_nagivation/at_stop_back"
+    msg_type: "BoolStamped"
+    trigger: True
 #  lost_lane: # not tested
 #    topic: "lane_filter_node/in_lane"
 #    msg_type: "BoolStamped"
@@ -129,9 +133,12 @@ states:
       - lane_filter_node
       - line_detector_node
       - stop_line_filter_node
+      - apriltag_node
+      - decoder_node
     lights: ["lane_following"]
   LANE_FOLLOWING_AVOID:
     transitions:
+      at_stop_back: "INTERSECTION_CONTROL"
       at_stop_line: "COORDINATION"
       vehicle_detection: "AVOID_VEHICLE"
       obstacle_detection: "AVOID_OBSTACLE"
@@ -159,6 +166,7 @@ states:
 #      intersection_done_and_not_parallel_autonomy: "LANE_FOLLOWING"
 #      intersection_done_and_parallel_autonomy: "PARALLEL_AUTONOMY"
       intersection_done: "LANE_FOLLOWING"
+      joystick_override_off: "LANE_FOLLOWING"
     active_nodes:
       - line_detector_node
       - lane_filter_node

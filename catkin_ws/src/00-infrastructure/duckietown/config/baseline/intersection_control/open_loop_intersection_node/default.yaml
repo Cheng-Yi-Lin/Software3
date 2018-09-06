@@ -12,6 +12,15 @@ turn_forward:
   - [0.8, 0.43, 0.4]
   - [1.0, 0.43, 0.0]
   - [1.0, 0.43, 0.0]
-
+turn_back:
+  - [ 1.2, 0.4, 0.0]
+  - [1.2,0.3,6.5]
+  - [0.8,0.4,0]
+turn_right_small:
+ # - [0.5,0.4,-3.5]
+  - [0.6, 0.3, -5.5]
+  - [0,6, 0.3, 0]
+  - [1,1,6.5]
+ # - [1,0.1,-6.5]
 #do we want to update the values based on where/what angle we stop at.
 trajectory_reparam: 0

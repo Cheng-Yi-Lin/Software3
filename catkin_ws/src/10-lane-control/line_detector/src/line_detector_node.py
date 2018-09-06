@@ -8,7 +8,7 @@ from duckietown_utils.jpg import image_cv_from_jpg
 from geometry_msgs.msg import Point
 from sensor_msgs.msg import CompressedImage, Image
 from visualization_msgs.msg import Marker
-
+from std_msgs.msg import String, Int32
 from line_detector.timekeeper import TimeKeeper
 import cv2
 import rospy
@@ -46,7 +46,7 @@ class LineDetectorNode(object):
         self.detector = None
         self.verbose = None
         self.updateParams(None)
-            
+        self.warehouse_following_color=""    
         # Publishers
         self.pub_lines = rospy.Publisher("~segment_list", SegmentList, queue_size=1)
         self.pub_image = rospy.Publisher("~image_with_lines", Image, queue_size=1)
@@ -55,12 +55,14 @@ class LineDetectorNode(object):
         self.sub_image = rospy.Subscriber("~image", CompressedImage, self.cbImage, queue_size=1)
         self.sub_transform = rospy.Subscriber("~transform", AntiInstagramTransform, self.cbTransform, queue_size=1)
         self.sub_switch = rospy.Subscriber("~switch", BoolStamped, self.cbSwitch, queue_size=1)
-
+        
+        self.sub_ware = rospy.Subscriber("porter_car_servo/warehouse_following", String, self.warehouse_following_mode, queue_size=1)
         rospy.loginfo("[%s] Initialized (verbose = %s)." %(self.node_name, self.verbose))
 
         rospy.Timer(rospy.Duration.from_sec(2.0), self.updateParams)
 
-
+    def warehouse_following_mode(self,warehouse_following_mode_msg):
+        self.warehouse_following_color=warehouse_following_mode_msg.data
     def updateParams(self, _event):
         old_verbose = self.verbose
         self.verbose = rospy.get_param('~verbose', True)
@@ -174,8 +176,13 @@ class LineDetectorNode(object):
 
         white = self.detector.detectLines('white')
         yellow = self.detector.detectLines('yellow')
-        red = self.detector.detectLines('red')
-
+        #red = self.detector.detectLines('blue')
+	if self.warehouse_following_color=="green_stop":
+            red=self.detector.detectLines('green')
+        elif self.warehouse_following_color=="blue_stop":
+            red=self.detector.detectLines('blue')
+        else:
+            red=self.detector.detectLines('red')
         tk.completed('detected')
      
         # SegmentList constructor

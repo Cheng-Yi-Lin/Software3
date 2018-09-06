@@ -25,12 +25,15 @@ class OpenLoopIntersectionNode(object):
         self.maneuvers[0] = self.getManeuver("turn_left")
         self.maneuvers[1] = self.getManeuver("turn_forward")
         self.maneuvers[2] = self.getManeuver("turn_right")
+        self.maneuvers[3] = self.getManeuver("turn_back")
+        self.maneuvers[4] = self.getManeuver("turn_right_small")
         # self.maneuvers[-1] = self.getManeuver("turn_stop")
 
         self.srv_turn_left = rospy.Service("~turn_left", Empty, self.cbSrvLeft)
         self.srv_turn_right = rospy.Service("~turn_right", Empty, self.cbSrvRight)
         self.srv_turn_forward = rospy.Service("~turn_forward", Empty, self.cbSrvForward)
-
+        self.srv_turn_back = rospy.Service("~turn_back", Empty, self.cbSrvBack)
+        self.srv_turn_right_small = rospy.Service("~turn_right_small", Empty, self.cbSrvRightSmall)
         self.rate = rospy.Rate(30)
 
         # Subscribers
@@ -51,7 +54,12 @@ class OpenLoopIntersectionNode(object):
     def cbSrvRight(self,req):
         self.trigger(2)
         return EmptyResponse()
-
+    def cbSrvBack(self,req):
+        self.trigger(3)
+        return EmptyResponse()
+    def cbSrvRightSmall(self,req):
+        self.trigger(4)
+        return EmptyResponse()
 
     def getManeuver(self,param_name):
         param_list = rospy.get_param("~%s"%(param_name))

@@ -25,6 +25,7 @@ generate_messages(
   DEPENDENCIES
   std_msgs
   duckietown_msgs
+#  urllib2
 )
 
 

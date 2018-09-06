@@ -1,0 +1,20 @@
+<launch>
+    <arg name="veh" default="$(env VEHICLE_NAME)"/>
+    <!-- start basic args -->
+    <include file="$(find duckietown_demos)/launch/master.launch">
+        <arg name="veh" value="$(arg veh)"/>
+        <arg name="visualization" default="true" />
+        <arg name="apriltags" default="true" />
+        <arg name="navigation" default="true" />
+		<arg name="/camera/raw" default="true"/>
+        <arg name="/camera/raw/rect" default="true"/>
+        <arg name="verbose" default="true" />
+        <arg name="param_file_name" default="default" />
+        <arg name="line_detector_param_file_name" default="default" />
+        <arg name="anti_instagram" default="true" />
+        <arg name="vehicle_avoidance" default="true" />
+    </include>
+    <include file="$(find tsp_salesman_nagivation)/launch/tsp_salesman_node.launch">
+        <arg name="veh" value="$(arg veh)"/>
+    </include>
+</launch>

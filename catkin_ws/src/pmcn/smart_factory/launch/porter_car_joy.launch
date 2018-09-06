@@ -1,0 +1,25 @@
+<launch>
+    <arg name="veh" doc="Name of vehicle. ex: megaman"/>
+    <arg name="local" default="false" doc="true for running on laptop. false for running on vehicle."/>
+    <arg name="config" default="baseline" doc="Specify a config."/>
+    <arg name="param_file_name" default="default" doc="Specify a param file. ex:megaman." />
+
+<include file="$(find duckietown_demos)/launch/master.launch">
+        <arg name="veh" value="$(arg veh)"/>
+        <arg name="visualization" default="false" />
+        <arg name="apriltags" default="true" />
+        <arg name="navigation" default="true" />
+		<arg name="/camera/raw" default="true"/>
+        <arg name="/camera/raw/rect" default="true"/>
+        <arg name="verbose" default="true" />
+        <arg name="param_file_name" default="default" />
+        <arg name="line_detector_param_file_name" default="default" />
+        <arg name="anti_instagram" default="true" />
+    </include>   
+ <include file="$(find smart_factory)/launch/porter_car_node.launch">
+        <arg name="veh" value="$(arg veh)"/>
+    </include>
+<include file="$(find tsp_salesman_nagivation)/launch/server.launch">
+        <arg name="veh" value="$(arg veh)"/>
+    </include>
+</launch>

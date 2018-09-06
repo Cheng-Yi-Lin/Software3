@@ -1,0 +1,16 @@
+cmake_minimum_required(VERSION 2.8.3)
+project(smart_factory)
+find_package(catkin REQUIRED COMPONENTS
+  adafruit_drivers
+  duckietown_msgs
+  roscpp
+  rospy
+  sensor_msgs
+  std_msgs
+
+)
+catkin_python_setup()
+catkin_package()
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+)
